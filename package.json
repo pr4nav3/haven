@@ -1,0 +1,29 @@
+{
+  "name": "crisisconcierge",
+  "version": "1.0.0",
+  "type": "module",
+  "description": "",
+  "main": "index.js",
+  "scripts": {
+    "clean": "powershell -Command \"if (Test-Path .\\dist) { Remove-Item -Recurse -Force .\\dist } ; if (Test-Path .\\src\\dist) { Remove-Item -Recurse -Force .\\src\\dist }\"",
+    "build:lambda": "npm run clean && powershell -Command \"if (-Not (Test-Path .\\dist)) { New-Item -ItemType Directory -Path .\\dist | Out-Null } ; npx esbuild lambda/handler.ts --bundle --platform=node --target=node20 --outfile=dist/handler.js\"",
+    "zip:lambda": "npm run build:lambda && powershell -Command \"Compress-Archive -Path .\\dist\\* -DestinationPath .\\lambda.zip -Force\""
+},
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "devDependencies": {
+    "cross-env": "^7.0.3",
+    "esbuild": "^0.25.9",
+    "tsx": "^4.20.4",
+    "typescript": "^5.9.2"
+  },
+  "dependencies": {
+    "cross-env": "^7.0.3",
+    "dotenv": "^17.2.1",
+    "fastify": "^5.5.0",
+    "openai": "^5.12.2",
+    "pg": "^8.16.3",
+    "typescript": "^5.9.2"
+  }
+}
