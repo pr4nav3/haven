@@ -19,6 +19,7 @@ const EASE_SHEET = [0.32, 0.72, 0, 1] as const;
 /**
  * Bottom sheet with three detents. The sheet is always 92vh tall and is
  * translated so only the detent's height shows; the map stays visible above.
+ * On wide screens it docks as a left panel.
  */
 export default function Sheet({ detent, onDetentChange, peekHeight, children, glass = false }: Props) {
   const reduce = useReducedMotion();
@@ -65,7 +66,7 @@ export default function Sheet({ detent, onDetentChange, peekHeight, children, gl
     <motion.div
       role="dialog"
       aria-label="Shelter details"
-      className={`surface ${glass ? "surface-glass" : ""} absolute inset-x-0 bottom-0 z-20 rounded-t-[16px] shadow-[0_-8px_40px_rgba(0,0,0,0.5)] sm:left-4 sm:right-auto sm:w-[420px] sm:rounded-t-[20px]`}
+      className={`surface ${glass ? "surface-glass" : ""} absolute inset-x-0 bottom-0 z-20 rounded-t-[20px] sm:left-4 sm:right-auto sm:w-[420px] sm:rounded-t-[22px]`}
       style={{ height: fullH, touchAction: "pan-y", overscrollBehavior: "contain" }}
       initial={false}
       animate={{ y: yFor(detent) }}
@@ -78,7 +79,7 @@ export default function Sheet({ detent, onDetentChange, peekHeight, children, gl
       onDragEnd={onDragEnd}
     >
       <div className="flex justify-center pt-3 pb-1" aria-hidden>
-        <div className="h-1.5 w-10 rounded-full bg-white/25" />
+        <div className="h-[5px] w-9 rounded-full bg-white/20" />
       </div>
       <div
         className="h-[calc(100%-20px)] overflow-y-auto px-5 pb-[calc(env(safe-area-inset-bottom)+20px)]"

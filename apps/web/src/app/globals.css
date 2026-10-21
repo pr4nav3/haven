@@ -4,12 +4,13 @@
 /* Design tokens from reports/Map app UI and motion patterns.md */
 :root {
   --surface: #0c0c0c;
-  --sheet: rgba(18, 18, 20, 0.92);
-  --sheet-glass: rgba(18, 18, 20, 0.55);
+  --sheet: rgba(18, 18, 20, 0.94);
+  --sheet-glass: rgba(16, 16, 19, 0.62);
   --edge: rgba(255, 255, 255, 0.08);
-  --edge-top: rgba(255, 255, 255, 0.14);
+  --edge-top: rgba(255, 255, 255, 0.16);
   --text: #f5f5f5;
   --text-2: #bdbdbd;
+  --text-3: #8a8a8f;
   --route: #56a8fb;
   --route-casing: #2f7ac6;
   --safe: #30c573;
@@ -26,15 +27,16 @@
   --ease-exit: cubic-bezier(0.3, 0, 1, 1);
   --ease-sheet: cubic-bezier(0.32, 0.72, 0, 1);
 
-  --r-sheet: 16px;
-  --r-button: 14px;
-  --r-banner: 10px;
+  --r-sheet: 20px;
+  --r-button: 999px;
+  --r-banner: 12px;
 }
 
 @theme inline {
   --color-surface: var(--surface);
   --color-text: var(--text);
   --color-text-2: var(--text-2);
+  --color-text-3: var(--text-3);
   --color-route: var(--route);
   --color-safe: var(--safe);
   --color-warning: var(--warning);
@@ -56,31 +58,36 @@ body {
   font-family: var(--font-sans);
   -webkit-font-smoothing: antialiased;
   -webkit-tap-highlight-color: transparent;
+  letter-spacing: -0.01em;
 }
 
 .tnum {
-  font-feature-settings: "tnum";
+  font-feature-settings: "tnum", "ss01";
   font-variant-numeric: tabular-nums;
 }
 
 /* Press feedback stays in CSS so it survives main-thread jank. */
 .pressable {
-  transition: transform 160ms var(--ease-exit), background-color var(--t-fast) var(--ease-enter);
+  transition: transform 160ms var(--ease-exit), background-color var(--t-fast) var(--ease-enter), box-shadow var(--t-fast) var(--ease-enter);
   touch-action: manipulation;
 }
 .pressable:active:not(:disabled) {
   transform: scale(0.97);
 }
 
+/* Surfaces -------------------------------------------------------------- */
 .surface {
-  background: var(--sheet);
+  background: linear-gradient(180deg, rgba(26, 26, 30, 0.94) 0%, rgba(16, 16, 19, 0.96) 100%);
   border: 1px solid var(--edge);
   border-top-color: var(--edge-top);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.06),
+    0 24px 60px rgba(0, 0, 0, 0.55);
 }
 .surface-glass {
-  background: var(--sheet-glass);
-  -webkit-backdrop-filter: blur(12px) saturate(140%);
-  backdrop-filter: blur(12px) saturate(140%);
+  background: linear-gradient(180deg, rgba(26, 26, 30, 0.62) 0%, rgba(14, 14, 17, 0.72) 100%);
+  -webkit-backdrop-filter: blur(22px) saturate(160%);
+  backdrop-filter: blur(22px) saturate(160%);
 }
 @media (prefers-reduced-transparency: reduce) {
   .surface-glass {
@@ -90,14 +97,67 @@ body {
   }
 }
 
+.pill {
+  background: rgba(14, 14, 17, 0.72);
+  border: 1px solid var(--edge);
+  -webkit-backdrop-filter: blur(16px) saturate(150%);
+  backdrop-filter: blur(16px) saturate(150%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.06), 0 8px 24px rgba(0, 0, 0, 0.4);
+}
+
+/* The one bright object on screen. */
+.btn-primary {
+  background: linear-gradient(180deg, #ffffff 0%, #ededed 100%);
+  color: #0c0c0c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.95),
+    inset 0 -1px 0 rgba(0, 0, 0, 0.08),
+    0 1px 0 rgba(0, 0, 0, 0.3),
+    0 14px 36px rgba(0, 0, 0, 0.5);
+}
+.btn-primary:active:not(:disabled) {
+  background: linear-gradient(180deg, #f1f1f1 0%, #e2e2e2 100%);
+}
+.btn-accent {
+  background: linear-gradient(180deg, #64b2ff 0%, #4a9cf3 100%);
+  color: #06111c;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.35),
+    0 10px 28px rgba(86, 168, 251, 0.28);
+}
+.btn-ghost {
+  background: rgba(255, 255, 255, 0.05);
+  border: 1px solid rgba(255, 255, 255, 0.12);
+  color: var(--text);
+}
+.btn-ghost:active:not(:disabled) {
+  background: rgba(255, 255, 255, 0.09);
+}
+
+/* Map atmosphere --------------------------------------------------------- */
+.vignette {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background:
+    radial-gradient(120% 90% at 50% 45%, transparent 55%, rgba(0, 0, 0, 0.55) 100%),
+    linear-gradient(180deg, rgba(0, 0, 0, 0.45) 0%, transparent 22%);
+}
+.fade-in-black {
+  pointer-events: none;
+  position: absolute;
+  inset: 0;
+  background: #0c0c0c;
+}
+
 /* MapLibre chrome we do not want. */
 .maplibregl-ctrl-attrib {
   background: rgba(12, 12, 12, 0.6) !important;
-  color: var(--text-2);
+  color: var(--text-3);
   font-size: 10px;
 }
 .maplibregl-ctrl-attrib a {
-  color: var(--text-2);
+  color: var(--text-3);
 }
 .maplibregl-ctrl-bottom-right {
   bottom: calc(env(safe-area-inset-bottom) + 4px);

@@ -2,80 +2,82 @@
 
 import { motion, stagger } from "motion/react";
 import { TYPE_LABEL, type Shelter } from "@/lib/shelters";
-import { compassLabel, formatMiles, formatMinutes } from "@/lib/geo";
-import { mapsLink } from "@/lib/routing";
+import { compassLabel, formatMiles } from "@/lib/geo";
 import type { Route } from "@/lib/routing";
+import AnimatedNumber from "./AnimatedNumber";
+import PrimaryButton, { ArrowIcon } from "./PrimaryButton";
 
 type Props = {
   shelter: Shelter;
   route: Route | null;
   bearing: number;
   offline: boolean;
+  onStart: () => void;
   onChange: () => void;
 };
 
 const row = {
-  hidden: { opacity: 0, y: 8 },
-  show: { opacity: 1, y: 0, transition: { duration: 0.2, ease: [0.2, 0, 0, 1] as const } },
+  hidden: { opacity: 0, y: 10 },
+  show: { opacity: 1, y: 0, transition: { duration: 0.24, ease: [0.2, 0, 0, 1] as const } },
 };
 
-export default function ShelterCard({ shelter, route, bearing, offline, onChange }: Props) {
+export default function ShelterCard({ shelter, route, bearing, offline, onStart, onChange }: Props) {
   const miles = route ? route.distanceM / 1609.344 : shelter.distanceMi;
-  const minutes = route ? formatMinutes(route.durationS) : null;
+  const minutes = route ? Math.max(1, Math.round(route.durationS / 60)) : null;
   const mode = route?.profile === "foot" ? "walk" : route ? "drive" : null;
   const hours = shelter.hours?.is_24_7 ? "Open 24 hours" : shelter.hours?.raw ?? null;
 
   return (
     <motion.div
+      key={shelter.id}
       initial="hidden"
       animate="show"
       transition={{ delayChildren: stagger(0.05) }}
       aria-live="polite"
     >
-      <motion.p variants={row} className="text-[14px] font-medium uppercase tracking-wide text-safe">
-        {offline ? "Offline · direction only" : "Nearest safe place"}
+      <motion.p variants={row} className="flex items-center gap-2 text-[13px] font-semibold uppercase tracking-[0.08em] text-safe">
+        <span className="inline-block h-1.5 w-1.5 rounded-full bg-safe shadow-[0_0_8px_rgba(48,197,115,0.9)]" />
+        {offline ? "Offline · direction only" : shelter.type === "fema" ? "Open emergency shelter" : "Nearest safe place"}
       </motion.p>
 
-      <motion.h1 variants={row} className="mt-1 text-[28px] font-semibold leading-tight">
+      <motion.h1 variants={row} className="mt-2 text-[28px] font-semibold leading-[1.1] tracking-[-0.02em]">
         {shelter.name}
       </motion.h1>
 
-      <motion.div variants={row} className="tnum mt-3 flex items-baseline gap-4 text-[24px] font-semibold">
-        <span>{formatMiles(miles)}</span>
-        {minutes ? (
-          <span className="text-text-2">
-            {minutes} <span className="text-[16px] font-medium">{mode}</span>
+      <motion.div variants={row} className="mt-3 flex items-baseline gap-4">
+        <span className="text-[30px] font-semibold tracking-[-0.02em]">
+          <AnimatedNumber value={miles} format={formatMiles} />
+        </span>
+        {minutes !== null ? (
+          <span className="text-[22px] font-medium text-text-2">
+            <AnimatedNumber value={minutes} format={(v) => `${Math.round(v)} min`} />
+            <span className="ml-1.5 text-[15px] text-text-3">{mode}</span>
           </span>
         ) : (
-          <span className="text-text-2">
-            {compassLabel(bearing)} <span className="text-[16px] font-medium">heading</span>
+          <span className="text-[22px] font-medium text-text-2">
+            {compassLabel(bearing)} <span className="text-[15px] text-text-3">heading</span>
           </span>
         )}
       </motion.div>
 
-      <motion.p variants={row} className="mt-3 text-[18px] text-text-2">
+      <motion.p variants={row} className="mt-3 text-[16px] text-text-2">
         {TYPE_LABEL[shelter.type]}
-        {hours ? ` · ${hours}` : ""}
+        {hours ? <span className="text-text-3"> · {hours}</span> : null}
       </motion.p>
       {shelter.address && (
-        <motion.p variants={row} className="mt-1 text-[18px] text-text-2">
+        <motion.p variants={row} className="mt-0.5 text-[16px] text-text-3">
           {shelter.address}
         </motion.p>
       )}
 
       <motion.div variants={row} className="mt-5 flex gap-3">
-        <a
-          href={mapsLink([shelter.lng, shelter.lat], shelter.name)}
-          target="_blank"
-          rel="noopener noreferrer"
-          className="pressable flex h-12 flex-1 items-center justify-center rounded-[12px] bg-route text-[17px] font-semibold text-[#0c0c0c]"
-        >
-          Navigate
-        </a>
+        <div className="flex-1">
+          <PrimaryButton label="Start" icon={<ArrowIcon />} variant="accent" size="md" onClick={onStart} />
+        </div>
         {shelter.phone && (
           <a
             href={`tel:${shelter.phone}`}
-            className="pressable flex h-12 w-12 items-center justify-center rounded-[12px] border border-white/15 bg-white/5"
+            className="pressable btn-ghost flex h-12 w-12 items-center justify-center rounded-full"
             aria-label={`Call ${shelter.name}`}
           >
             <PhoneIcon />
@@ -84,11 +86,16 @@ export default function ShelterCard({ shelter, route, bearing, offline, onChange
         <button
           type="button"
           onClick={onChange}
-          className="pressable h-12 rounded-[12px] border border-white/15 bg-white/5 px-4 text-[16px] font-medium text-text"
+          className="pressable btn-ghost h-12 rounded-full px-5 text-[15px] font-medium"
         >
           Change
         </button>
       </motion.div>
+      {route && (
+        <motion.p variants={row} className="mt-3 text-[13px] text-text-3">
+          Start follows you along the route in Haven. Route data © OpenStreetMap.
+        </motion.p>
+      )}
     </motion.div>
   );
 }

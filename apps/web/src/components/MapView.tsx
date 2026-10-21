@@ -6,6 +6,9 @@ import { STYLE_URL, applyDarkOverrides, firstSymbolLayerId } from "@/map/style";
 import { addUserLayers } from "@/map/userDot";
 import { addShelterLayers } from "@/map/shelterPins";
 import { addRouteLayers } from "@/map/route";
+import { addHazardLayers } from "@/map/hazards";
+import { add3DBuildings } from "@/map/buildings";
+import { IDLE_BEARING } from "@/map/camera";
 import { MADISON } from "@/lib/geo";
 
 type Props = {
@@ -27,11 +30,12 @@ export default function MapView({ onReady, reduceMotion }: Props) {
       container: el.current,
       style: STYLE_URL,
       center: MADISON,
-      zoom: 6.2,
-      pitch: 0,
+      zoom: 13.4,
+      pitch: 62,
+      bearing: IDLE_BEARING - 6,
       attributionControl: { compact: true },
       fadeDuration: 0,
-      maxPitch: 60,
+      maxPitch: 70,
     });
     mapRef.current = map;
     if (process.env.NODE_ENV !== "production") {
@@ -41,8 +45,10 @@ export default function MapView({ onReady, reduceMotion }: Props) {
     map.on("load", () => {
       applyDarkOverrides(map);
       const labels = firstSymbolLayerId(map);
+      addHazardLayers(map, labels);
+      add3DBuildings(map, labels);
       addShelterLayers(map, labels);
-      addRouteLayers(map, labels);
+      addRouteLayers(map);
       addUserLayers(map, reduceMotion);
       onReady(map);
     });

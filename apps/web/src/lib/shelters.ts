@@ -1,5 +1,6 @@
 import { haversineMi, type LngLat } from "./geo";
 import { supabase } from "./supabase";
+import { femaOpenShelters } from "./fema";
 
 export type ShelterType =
   | "fema"
@@ -97,13 +98,19 @@ export async function nearestShelters(
     }
   }
 
-  const features = await loadLocalShelters();
+  const [features, fema] = await Promise.all([loadLocalShelters(), femaOpenShelters()]);
   const rows: Shelter[] = [];
   for (const f of features) {
     const [lng, lat] = f.geometry.coordinates;
     const d = haversineMi(at, [lng, lat]);
     if (d > maxMi) continue;
     rows.push({ ...f.properties, lng, lat, distanceMi: d });
+  }
+  // Live FEMA shelters, when any are open, outrank everything nearby.
+  for (const s of fema) {
+    const d = haversineMi(at, [s.lng, s.lat]);
+    if (d > maxMi) continue;
+    rows.push({ ...s, distanceMi: d });
   }
   return rank(rows).slice(0, limit);
 }

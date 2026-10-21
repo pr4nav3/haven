@@ -76,6 +76,20 @@ function gradientAt(phase: number): maplibregl.ExpressionSpecification {
   ];
 }
 
+const ROUTE_DONE = "rgba(86,168,251,0.28)";
+
+/** During guidance: the walked part fades back, the remainder stays bright. */
+export function setRouteProgress(map: maplibregl.Map, frac: number) {
+  const p = Math.min(0.999, Math.max(0, frac));
+  map.setPaintProperty(FILL, "line-gradient", [
+    "interpolate", ["linear"], ["line-progress"],
+    0, ROUTE_DONE,
+    p, ROUTE_DONE,
+    Math.min(1, p + 0.002), ROUTE,
+    1, ROUTE,
+  ]);
+}
+
 export function clearRoute(map: maplibregl.Map) {
   const src = map.getSource(SRC) as maplibregl.GeoJSONSource | undefined;
   src?.setData(EMPTY);
