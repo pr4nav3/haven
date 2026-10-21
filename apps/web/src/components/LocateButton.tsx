@@ -1,0 +1,22 @@
+"use client";
+
+export default function LocateButton({ onClick, bottom }: { onClick: () => void; bottom: string }) {
+  return (
+    <button
+      type="button"
+      onClick={onClick}
+      aria-label="Center on my location"
+      className="pressable surface absolute right-4 z-20 flex h-12 w-12 items-center justify-center rounded-full text-text shadow-[0_4px_20px_rgba(0,0,0,0.5)]"
+      style={{ bottom, transition: "bottom 500ms var(--ease-sheet)" }}
+    >
+      <svg width="22" height="22" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" aria-hidden>
+        <circle cx="12" cy="12" r="3" />
+        <circle cx="12" cy="12" r="8" />
+        <line x1="12" y1="2" x2="12" y2="4" />
+        <line x1="12" y1="20" x2="12" y2="22" />
+        <line x1="2" y1="12" x2="4" y2="12" />
+        <line x1="20" y1="12" x2="22" y2="12" />
+      </svg>
+    </button>
+  );
+}
